@@ -2,12 +2,7 @@
 
 > **Lightweight, zero-dependency JavaScript & Cloudflare Worker string obfuscator with rotating XOR encryption and Base64 encoding.**
 
-[Run Online](https://www.google.com/search?q=https://mstbat.github.io/CloakJS/)
-[](https://github.com/MSTbat/CloakJS)
-[License: MIT](https://www.google.com/search?q=LICENSE)
-[](https://github.com/MSTbat/CloakJS)
-
-[📖 مطالعه مستندات به زبان فارسی (Persian Documentation)]()
+[📖 مطالعه مستندات به زبان فارسی (Persian Documentation)](https://github.com/MSTbat/CloakJS/blob/main/readme_fa.md)
 
 ---
 

@@ -2,9 +2,7 @@
 
 > **ابزار سبک، سریع و بدون وابستگی برای مبهم‌سازی رشته‌های متنی در ورکر‌های کلادفلر و کدهای جاوااسکریپت با الگوریتم XOR چرخشی و Base64.**
 
-[مجوز: MIT](https://www.google.com/search?q=LICENSE)
-
-[🌐 Read Documentation in English](README.md)
+[🌐 Read Documentation in English](https://github.com/MSTbat/CloakJS/blob/main/readme.md)
 
 ---
 
