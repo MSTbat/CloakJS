@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CloakJS | JavaScript & Worker Obfuscator</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238B5CF6' stroke-width='2' stroke-linecap='round' stroke-linejoin-round%3E%3Cpath d='M12 2.5C7.5 2.5 4 6 4 11.5c0 4.2 1.5 7.5 2 9.5 1.8-1.5 3.8-2.2 6-2.2s4.2.7 6 2.2c.5-2 2-5.3 2-9.5C20 6 16.5 2.5 12 2.5z' fill='%236366F1'/%3E%3Cpath d='M8.5 11.5h7' stroke='white' stroke-width='2.5'/%3E%3C/svg%3E">
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            oledBg: '#05050A',
+            oledSurface: '#0B0D17',
+            oledCard: '#101422',
+            oledBorder: '#1E2337',
+            oledHover: '#2A3047',
+            brandIndigo: '#6366F1',
+            brandViolet: '#8B5CF6',
+            brandCyan: '#38BDF8',
+            brandEmerald: '#10B981',
+          },
+          fontFamily: {
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    body {
+      background-color: #05050A;
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.12) 0%, transparent 50%),
+        radial-gradient(circle at 85% 90%, rgba(139, 92, 246, 0.08) 0%, transparent 45%);
+      background-attachment: fixed;
+    }
+    .linear-glow {
+      box-shadow: 0 0 25px -4px rgba(99, 102, 241, 0.25);
+    }
+    .linear-btn-primary {
+      background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #A855F7 100%);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .linear-btn-primary:hover {
+      box-shadow: 0 0 30px 2px rgba(139, 92, 246, 0.45);
+      transform: translateY(-1px);
+      filter: brightness(1.1);
+    }
+    .custom-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
+    .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #1E2337; border-radius: 99px; }
+    .custom-scroll::-webkit-scrollbar-thumb:hover { background: #6366F1; }
+  </style>
+</head>
+<body class="min-h-screen text-slate-100 font-sans flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
+
+  <!-- TOP NAVIGATION BAR -->
+  <header class="border-b border-oledBorder/80 bg-oledBg/80 backdrop-blur-xl sticky top-0 z-40 px-4 sm:px-8 py-3.5">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <!-- CLOAK STEALTH ICON -->
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-brandIndigo to-brandViolet flex items-center justify-center text-white shadow-md shadow-indigo-500/30">
+          <svg class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin-round>
+            <path d="M12 2.5C7.5 2.5 4 6 4 11.5c0 4.2 1.5 7.5 2 9.5 1.8-1.5 3.8-2.2 6-2.2s4.2.7 6 2.2c.5-2 2-5.3 2-9.5C20 6 16.5 2.5 12 2.5z" fill="rgba(255, 255, 255, 0.18)"/>
+            <path d="M8.5 11.5h7" stroke-width="2.5"/>
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-sm sm:text-base font-bold text-white tracking-tight">CloakJS</h1>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-medium">v1.0.0</span>
+          </div>
+          <p class="text-[11px] text-slate-400 hidden sm:block">JavaScript & Worker Obfuscator</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2.5">
+        <div class="w-2 h-2 rounded-full bg-brandEmerald"></div>
+        <span class="text-xs font-mono text-slate-400">Ready</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN BODY -->
+  <main class="max-w-7xl mx-auto w-full p-4 sm:p-6 lg:p-8 flex-1 flex flex-col gap-6">
+
+    <!-- METRICS & CONTROL HUD -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+      <div class="p-4 rounded-2xl bg-oledSurface border border-oledBorder flex flex-col gap-1.5">
+        <span class="text-[11px] font-mono text-slate-400 uppercase tracking-wider">Encrypted Strings</span>
+        <div class="flex items-baseline gap-2">
+          <span id="metricStringsCount" class="text-xl sm:text-2xl font-bold font-mono text-white">0</span>
+          <span class="text-xs text-brandIndigo font-mono">tokens</span>
+        </div>
+      </div>
+
+      <div class="p-4 rounded-2xl bg-oledSurface border border-oledBorder flex flex-col gap-1.5">
+        <span class="text-[11px] font-mono text-slate-400 uppercase tracking-wider">Execution Time</span>
+        <div class="flex items-baseline gap-2">
+          <span id="metricTime" class="text-xl sm:text-2xl font-bold font-mono text-white">—</span>
+          <span class="text-xs text-brandEmerald font-mono">ms</span>
+        </div>
+      </div>
+
+      <div class="p-4 rounded-2xl bg-oledSurface border border-oledBorder flex flex-col gap-1.5">
+        <span class="text-[11px] font-mono text-slate-400 uppercase tracking-wider">Bundle Delta</span>
+        <div class="flex items-baseline gap-2">
+          <span id="metricSizeDelta" class="text-xl sm:text-2xl font-bold font-mono text-white">0.00</span>
+          <span class="text-xs text-brandCyan font-mono">KB</span>
+        </div>
+      </div>
+
+      <div class="p-4 rounded-2xl bg-oledSurface border border-oledBorder flex flex-col gap-1.5 justify-between">
+        <div class="flex items-center justify-between">
+          <span class="text-[11px] font-mono text-slate-400 uppercase tracking-wider">XOR Key</span>
+          <button id="randomKeyBtn" class="text-[10px] font-mono text-indigo-400 hover:text-indigo-300">🎲 Random</button>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <input type="text" id="xorKeyInput" value="0x4F" class="bg-oledCard border border-oledBorder rounded-lg px-2.5 py-1 text-xs font-mono text-brandCyan w-24 focus:outline-none focus:border-brandIndigo">
+          <span class="text-[10px] font-mono text-slate-500">HEX / DEC</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTION CONTROLS BAR -->
+    <div class="flex flex-wrap items-center justify-between gap-3 px-1">
+      <div class="flex items-center gap-2.5 flex-wrap">
+        <label for="fileUploadInput" class="px-3.5 py-2 rounded-xl bg-oledSurface hover:bg-oledCard border border-oledBorder hover:border-slate-600 text-xs font-medium text-slate-300 transition cursor-pointer flex items-center gap-2">
+          <span>📁</span>
+          <span>Upload File</span>
+        </label>
+        <input type="file" id="fileUploadInput" accept=".js,.mjs,.ts,.txt" class="hidden">
+
+        <button id="clearAllBtn" class="px-3.5 py-2 rounded-xl bg-oledSurface hover:bg-oledCard border border-oledBorder hover:border-rose-500/50 text-xs font-medium text-slate-400 hover:text-rose-400 transition">
+          Clear
+        </button>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <span class="text-[11px] font-mono text-slate-500 hidden sm:inline">Ctrl + Enter</span>
+        <button id="obfuscateActionBtn" class="linear-btn-primary px-6 py-2.5 rounded-xl text-white font-mono font-semibold text-xs sm:text-sm flex items-center gap-2 shadow-lg">
+          <span>⚡</span>
+          <span>Obfuscate Code</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- DUAL EDITOR INTERFACE -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 flex-1 items-stretch">
+
+      <!-- INPUT CARD -->
+      <div id="dropZone" class="rounded-2xl bg-oledSurface border border-oledBorder flex flex-col shadow-2xl overflow-hidden min-h-[460px] transition duration-200">
+        <div class="px-4 py-3 border-b border-oledBorder/80 bg-oledCard/40 flex items-center justify-between text-xs font-mono">
+          <div class="flex items-center gap-2.5">
+            <div class="flex gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-rose-500/60"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-500/60"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500/60"></span>
+            </div>
+            <span id="inputFileNameDisplay" class="text-slate-300 font-medium ml-1">source.js</span>
+          </div>
+          <span id="inputCharCount" class="text-slate-400 text-[11px]">0 chars</span>
+        </div>
+
+        <div class="p-3 flex-1 flex flex-col">
+          <textarea id="sourceCodeInput" placeholder="// Paste your Cloudflare Worker script, proxy code, or JavaScript here...
+// Drag & drop a .js file or press Ctrl+Enter to obfuscate." class="w-full flex-1 bg-oledBg border border-oledBorder/70 rounded-xl p-4 text-xs font-mono text-slate-200 focus:outline-none focus:border-brandIndigo custom-scroll resize-none leading-relaxed min-h-[400px]"></textarea>
+        </div>
+      </div>
+
+      <!-- OUTPUT CARD -->
+      <div class="rounded-2xl bg-oledSurface border border-oledBorder flex flex-col shadow-2xl overflow-hidden min-h-[460px]">
+        <div class="px-4 py-3 border-b border-oledBorder/80 bg-oledCard/40 flex items-center justify-between text-xs font-mono">
+          <div class="flex items-center gap-2.5">
+            <span class="w-2 h-2 rounded-full bg-brandIndigo animate-pulse"></span>
+            <span id="outputFileNameDisplay" class="text-slate-300 font-medium">cloak.obfuscated.js</span>
+          </div>
+          <span id="outputCharCount" class="text-slate-400 text-[11px]">0 chars</span>
+        </div>
+
+        <div class="p-3 flex-1 flex flex-col">
+          <textarea id="obfuscatedOutput" readonly placeholder="// Obfuscated output with lightweight runtime decoder will appear here..." class="w-full flex-1 bg-oledBg border border-oledBorder/70 rounded-xl p-4 text-xs font-mono text-indigo-300 focus:outline-none custom-scroll resize-none leading-relaxed min-h-[400px] select-text"></textarea>
+        </div>
+
+        <!-- FOOTER ACTIONS -->
+        <div class="px-4 py-3 bg-oledCard/60 border-t border-oledBorder flex items-center justify-between gap-3">
+          <span class="text-[11px] font-mono text-slate-400">Status: <span id="outputStatusLabel" class="text-indigo-400 font-semibold">Idle</span></span>
+
+          <div class="flex items-center gap-2.5">
+            <button id="copyOutputBtn" class="px-4 py-2 rounded-xl bg-oledCard border border-oledBorder hover:border-brandIndigo hover:text-white text-xs font-mono font-medium text-slate-300 transition flex items-center gap-1.5">
+              <span>📋</span>
+              <span id="copyBtnText">Copy Code</span>
+            </button>
+            <button id="downloadOutputBtn" class="px-4 py-2 rounded-xl bg-brandIndigo hover:bg-brandIndigo/90 text-white text-xs font-mono font-semibold transition flex items-center gap-1.5 shadow-md shadow-indigo-500/20">
+              <span>💾</span>
+              <span>Download .js</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toastNotification" class="fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-300 px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5 text-xs font-mono bg-oledCard border border-oledBorder text-slate-100"></div>
+
+  <!-- CORE JAVASCRIPT ENGINE -->
+  <script>
+    // --- ROTATING XOR + BASE64 ENGINE ---
+    function encodeStringToTable(str, key) {
+      const utf8Str = unescape(encodeURIComponent(str));
+      let out = '';
+      for (let i = 0; i < utf8Str.length; i++) {
+        out += String.fromCharCode(utf8Str.charCodeAt(i) ^ (key ^ (i % 11)));
+      }
+      return btoa(out);
+    }
+
+    function obfuscateWorkerCode(code, key = 0x4f) {
+      const stringTable = [];
+      const stringIndexMap = new Map();
+
+      function getOrAddString(strContent) {
+        if (stringIndexMap.has(strContent)) return stringIndexMap.get(strContent);
+        const idx = stringTable.length;
+        stringTable.push(encodeStringToTable(strContent, key));
+        stringIndexMap.set(strContent, idx);
+        return idx;
+      }
+
+      let i = 0;
+      const len = code.length;
+      let output = '';
+
+      while (i < len) {
+        const char = code[i];
+        const nextChar = i + 1 < len ? code[i + 1] : '';
+
+        // Single-line comments //
+        if (char === '/' && nextChar === '/') {
+          const end = code.indexOf('\n', i);
+          if (end === -1) { output += code.slice(i); break; }
+          output += code.slice(i, end);
+          i = end;
+          continue;
+        }
+
+        // Multi-line comments /* ... */
+        if (char === '/' && nextChar === '*') {
+          const end = code.indexOf('*/', i + 2);
+          if (end === -1) { output += code.slice(i); break; }
+          output += code.slice(i, end + 2);
+          i = end + 2;
+          continue;
+        }
+
+        // Template literals (`...`)
+        if (char === '`') {
+          let end = i + 1;
+          while (end < len) {
+            if (code[end] === '\\') end += 2;
+            else if (code[end] === '`') { end++; break; }
+            else end++;
+          }
+          output += code.slice(i, end);
+          i = end;
+          continue;
+        }
+
+        // Regular Expressions
+        if (char === '/') {
+          const trimmed = output.trimEnd();
+          const lastChar = trimmed.slice(-1);
+          const isRegex = !lastChar || '(=:[,!&|?;{}~^+*%-'.includes(lastChar) || /(?:return|case|delete|throw|typeof)\s*$/.test(trimmed);
+
+          if (isRegex) {
+            let end = i + 1;
+            let inClass = false;
+            while (end < len) {
+              if (code[end] === '\\') end += 2;
+              else if (code[end] === '[' && !inClass) { inClass = true; end++; }
+              else if (code[end] === ']' && inClass) { inClass = false; end++; }
+              else if (code[end] === '/' && !inClass) {
+                end++;
+                while (end < len && /[gimsuy]/.test(code[end])) end++;
+                break;
+              } else end++;
+            }
+            output += code.slice(i, end);
+            i = end;
+            continue;
+          }
+        }
+
+        // Strings ('...' or "...")
+        if (char === '"' || char === "'") {
+          const quote = char;
+          const strStart = i;
+          let strEnd = i + 1;
+
+          while (strEnd < len) {
+            if (code[strEnd] === '\\') strEnd += 2;
+            else if (code[strEnd] === quote) { strEnd++; break; }
+            else if (code[strEnd] === '\n') break;
+            else strEnd++;
+          }
+
+          const strLiteral = code.slice(strStart, strEnd);
+          let rawVal = null;
+          try {
+            rawVal = quote === '"'
+              ? JSON.parse(strLiteral)
+              : JSON.parse(`"${strLiteral.slice(1, -1).replace(/\\'/g, "'").replace(/"/g, '\\"')}"`);
+          } catch {
+            rawVal = strLiteral.slice(1, -1);
+          }
+
+          const prevTrimmed = output.trimEnd();
+          const isImportExport = /(?:from|import)\s*$/.test(prevTrimmed);
+          const isDirective = rawVal === 'use strict';
+
+          if (isImportExport || isDirective || !rawVal || rawVal.length === 0) {
+            output += strLiteral;
+            i = strEnd;
+            continue;
+          }
+
+          let k = strEnd;
+          while (k < len && (code[k] === ' ' || code[k] === '\t' || code[k] === '\r' || code[k] === '\n')) k++;
+          const isFollowedByColon = (code[k] === ':' && code[k + 1] !== ':');
+          const lastToken = prevTrimmed.slice(-1);
+          const isTernaryOrCondition = lastToken === '?' || /(?:case)\s*$/.test(prevTrimmed);
+
+          if (isFollowedByColon && !isTernaryOrCondition) {
+            output += strLiteral;
+          } else {
+            const idx = getOrAddString(rawVal);
+            output += `func_dec(${idx})`;
+          }
+
+          i = strEnd;
+          continue;
+        }
+
+        output += char;
+        i++;
+      }
+
+      const runtimeHeader = `// @ts-nocheck
+const _0x_key = ${key};
+const _0x_tbl = ${JSON.stringify(stringTable)};
+const _0x_cache = new Map();
+function func_dec(idx) {
+  if (_0x_cache.has(idx)) return _0x_cache.get(idx);
+  const raw = atob(_0x_tbl[idx]);
+  let out = "";
+  for (let i = 0; i < raw.length; i++) {
+    out += String.fromCharCode(raw.charCodeAt(i) ^ (_0x_key ^ (i % 11)));
+  }
+  try {
+    out = decodeURIComponent(escape(out));
+  } catch (_) {}
+  _0x_cache.set(idx, out);
+  return out;
+}
+`;
+      return {
+        code: runtimeHeader + '\n' + output,
+        stringCount: stringTable.length
+      };
+    }
+
+    // --- DOM & FILE CONTROLLERS ---
+    const sourceInput = document.getElementById('sourceCodeInput');
+    const obfuscatedOutput = document.getElementById('obfuscatedOutput');
+    const inputCharCount = document.getElementById('inputCharCount');
+    const outputCharCount = document.getElementById('outputCharCount');
+    const inputFileNameDisplay = document.getElementById('inputFileNameDisplay');
+    const outputFileNameDisplay = document.getElementById('outputFileNameDisplay');
+    const metricStringsCount = document.getElementById('metricStringsCount');
+    const metricTime = document.getElementById('metricTime');
+    const metricSizeDelta = document.getElementById('metricSizeDelta');
+    const outputStatusLabel = document.getElementById('outputStatusLabel');
+    const xorKeyInput = document.getElementById('xorKeyInput');
+    const toastNotification = document.getElementById('toastNotification');
+    const dropZone = document.getElementById('dropZone');
+    const fileUploadInput = document.getElementById('fileUploadInput');
+
+    // Dynamic file naming state
+    let currentInputFileName = 'source.js';
+    let currentOutputFileName = 'cloak.obfuscated.js';
+
+    function computeObfuscatedName(originalName) {
+      if (!originalName) return 'cloak.obfuscated.js';
+      const lastDot = originalName.lastIndexOf('.');
+      if (lastDot > 0) {
+        const base = originalName.slice(0, lastDot);
+        return `${base}.obfuscated.js`;
+      }
+      return `${originalName}.obfuscated.js`;
+    }
+
+    function handleFileSelection(file) {
+      if (!file) return;
+      currentInputFileName = file.name;
+      currentOutputFileName = computeObfuscatedName(file.name);
+
+      if (inputFileNameDisplay) inputFileNameDisplay.innerText = currentInputFileName;
+      if (outputFileNameDisplay) outputFileNameDisplay.innerText = currentOutputFileName;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        sourceInput.value = event.target.result;
+        updateInputCounters();
+        showToast(`Loaded ${file.name}`);
+      };
+      reader.readAsText(file);
+    }
+
+    function showToast(text, isError = false) {
+      toastNotification.innerHTML = isError
+        ? `<span class="text-rose-400">✕</span> <span>${text}</span>`
+        : `<span class="text-brandEmerald">✓</span> <span>${text}</span>`;
+      toastNotification.className = isError
+        ? 'fixed bottom-6 right-6 z-50 transform translate-y-0 opacity-100 transition-all duration-300 px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5 text-xs font-mono bg-oledCard border border-rose-500/40 text-rose-200'
+        : 'fixed bottom-6 right-6 z-50 transform translate-y-0 opacity-100 transition-all duration-300 px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5 text-xs font-mono bg-oledCard border border-indigo-500/40 text-slate-100';
+
+      setTimeout(() => {
+        toastNotification.className = 'fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-300 px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5 text-xs font-mono bg-oledCard border border-oledBorder text-slate-100';
+      }, 3000);
+    }
+
+    function updateInputCounters() {
+      const len = sourceInput.value.length;
+      inputCharCount.innerText = `${len.toLocaleString()} chars`;
+    }
+
+    sourceInput.addEventListener('input', updateInputCounters);
+
+    // Ctrl+Enter or Cmd+Enter shortcut
+    sourceInput.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        runObfuscation();
+      }
+    });
+
+    // Drag and drop support
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropZone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        dropZone.classList.add('border-brandIndigo', 'bg-oledCard/60');
+      }, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropZone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('border-brandIndigo', 'bg-oledCard/60');
+      }, false);
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      const dt = e.dataTransfer;
+      const file = dt && dt.files[0];
+      if (file) {
+        handleFileSelection(file);
+      }
+    });
+
+    // File Upload Input
+    fileUploadInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        handleFileSelection(file);
+      }
+    });
+
+    document.getElementById('randomKeyBtn').addEventListener('click', () => {
+      const hex = '0x' + Math.floor(Math.random() * 255).toString(16).toUpperCase().padStart(2, '0');
+      xorKeyInput.value = hex;
+      showToast(`Key updated to ${hex}`);
+    });
+
+    document.getElementById('clearAllBtn').addEventListener('click', () => {
+      sourceInput.value = '';
+      obfuscatedOutput.value = '';
+      currentInputFileName = 'source.js';
+      currentOutputFileName = 'cloak.obfuscated.js';
+      if (inputFileNameDisplay) inputFileNameDisplay.innerText = 'source.js';
+      if (outputFileNameDisplay) outputFileNameDisplay.innerText = 'cloak.obfuscated.js';
+      fileUploadInput.value = '';
+      updateInputCounters();
+      outputCharCount.innerText = '0 chars';
+      metricStringsCount.innerText = '0';
+      metricTime.innerText = '—';
+      metricSizeDelta.innerText = '0.00';
+      outputStatusLabel.innerText = 'Idle';
+      outputStatusLabel.className = 'text-indigo-400 font-semibold';
+      showToast('Workspace cleared');
+    });
+
+    function runObfuscation() {
+      const code = sourceInput.value.trim();
+      if (!code) {
+        showToast('Please enter or paste JavaScript source code', true);
+        return;
+      }
+
+      let parsedKey = parseInt(xorKeyInput.value.trim(), 16);
+      if (isNaN(parsedKey)) parsedKey = parseInt(xorKeyInput.value.trim(), 10);
+      if (isNaN(parsedKey)) parsedKey = 0x4f;
+
+      const start = performance.now();
+      try {
+        const result = obfuscateWorkerCode(code, parsedKey);
+        const duration = (performance.now() - start).toFixed(1);
+
+        obfuscatedOutput.value = result.code;
+        outputCharCount.innerText = `${result.code.length.toLocaleString()} chars`;
+        metricStringsCount.innerText = result.stringCount.toLocaleString();
+        metricTime.innerText = duration;
+
+        const sizeDelta = ((result.code.length - code.length) / 1024).toFixed(2);
+        metricSizeDelta.innerText = (sizeDelta >= 0 ? `+${sizeDelta}` : sizeDelta);
+
+        outputStatusLabel.innerText = 'Obfuscated';
+        outputStatusLabel.className = 'text-brandEmerald font-semibold';
+
+        showToast(`Protected ${result.stringCount} strings in ${duration}ms`);
+      } catch (err) {
+        showToast(`Error: ${err.message}`, true);
+      }
+    }
+
+    // Run Obfuscation Button
+    document.getElementById('obfuscateActionBtn').addEventListener('click', runObfuscation);
+
+    // Copy to Clipboard
+    document.getElementById('copyOutputBtn').addEventListener('click', () => {
+      const output = obfuscatedOutput.value;
+      if (!output) {
+        showToast('No obfuscated code to copy', true);
+        return;
+      }
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(output).then(() => {
+          showToast('Copied to clipboard');
+        }).catch(() => fallbackCopy(output));
+      } else {
+        fallbackCopy(output);
+      }
+    });
+
+    function fallbackCopy(text) {
+      obfuscatedOutput.select();
+      try {
+        document.execCommand('copy');
+        showToast('Copied to clipboard');
+      } catch {
+        showToast('Copy failed', true);
+      }
+    }
+
+    // Download File with Dynamic Name
+    document.getElementById('downloadOutputBtn').addEventListener('click', () => {
+      const output = obfuscatedOutput.value;
+      if (!output) {
+        showToast('No code available to download', true);
+        return;
+      }
+      const blob = new Blob([output], { type: 'application/javascript;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = currentOutputFileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast(`Downloaded ${currentOutputFileName}`);
+    });
+  </script>
+</body>
+</html>
